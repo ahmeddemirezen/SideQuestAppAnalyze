@@ -46,8 +46,6 @@ for i in range(iteration):
 
 content = driver.page_source
 
-driver.quit()
-
 soup = BeautifulSoup(content, 'html.parser')
 
 appNames = []
@@ -95,4 +93,4 @@ df['url'] = df['url'].apply(lambda x: 'https://sidequestvr.com' + x)
 print(df.describe())
 print(df.head())
 
-df.to_csv('sidequest.csv', index=True)
+df.to_csv('sidequest.csv', index=False)
