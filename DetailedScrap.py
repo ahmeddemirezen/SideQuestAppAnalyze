@@ -30,36 +30,42 @@ def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=
 
 driver = webdriver.Edge(EdgeChromiumDriverManager().install())
 
-df = pd.read_csv('sidequest.csv', index_col=0)
+df = pd.read_csv('sidequest.csv')
+df.dropna()
 
-print(df.head())
+print(df['click'].describe())
 
-df['click'] = ''
-df['view'] = ''
+# df['click'] = ''
+# df['view'] = ''
 
-print(df.head())
+# print(df.head())
 
 totalCount = df['url'].count()
 printProgressBar(0, totalCount, prefix='Progress:',
                  suffix='Complete', length=50)
+
 for index in range(totalCount):
     printProgressBar(index + 1, totalCount, prefix='Progress:',
                      suffix='Complete', length=50)
     try:
-        driver.get(df['url'][index])
-        time.sleep(0.1)
-        soup = BeautifulSoup(driver.page_source, 'html.parser')
-        card = soup.find(
-            'div', attrs={'class': 'row right-section center-align stats-padding'})
-        df.at[index, 'click'] = card.find(
-            'div', attrs={'class': 'counter download-counter-box'}).text
-        df.at[index, 'view'] = card.find_all(
-            'div', attrs={'class': 'counter'})[2].text
+        if(str(df.at[index,'click']) == 'nan' or str(df.at[index,'click']) == ''):
+            driver.get(df['url'][index])
+            time.sleep(5)
+            soup = BeautifulSoup(driver.page_source, 'html.parser')
+            card = soup.find(
+                'div', attrs={'class': 'row right-section center-align stats-padding'})
+            df.at[index, 'click'] = card.find(
+                'div', attrs={'class': 'counter download-counter-box'}).text
+            df.at[index, 'view'] = card.find_all(
+                'div', attrs={'class': 'counter'})[2].text
     except:
         continue
+    if((index + 1) % 100 == 0):
+        df.to_csv('sidequest.csv', index=False)
+        print('Saved')
 
 driver.quit()
 
 print(df.head())
 
-df.to_csv('sidequest_click_view.csv')
+df.to_csv('sidequest.csv',index=False)
